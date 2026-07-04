@@ -1,0 +1,57 @@
+#ifndef MALLOC_H
+#define MALLOC_H
+
+#include <sys/mman.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* pour que, dans le .so, il y ait uniquement les fonctions avec le tag EXPORT*/
+#define EXPORT __attribute__((visibility("default")))
+
+/* force le inline */
+#define INLINE __attribute__((always_inline))
+
+
+#define PAGE_SIZE sysconf(_SC_PAGESIZE)
+
+
+#define TINY 0
+#define SMALL 1
+#define TINY_CHUNK 64
+#define SMALL_CHUNK 4096
+#define TINY_ZONE_SIZE (3 * PAGE_SIZE)
+#define SMALL_ZONE_SIZE (129 * PAGE_SIZE)
+
+/* structure representant le header de chaque zone de memoire */
+typedef struct s_zone
+{
+    void        *next;
+    uint64_t    bitmap[2];
+    char        first_free_index;
+}               t_zone;
+
+extern t_zone *zones[2];
+
+
+/* bitmap.c */
+
+void setBit(unsigned long *bitmap, size_t bitPos);
+void clearBit(unsigned long *bitmap, size_t bitPos);
+bool checkBit(unsigned long *bitmap, size_t bitPos);
+char getNextIndex(t_zone *zone);
+
+/* alloc.c */
+
+void *malloc(size_t size);
+void free(void *ptr);
+void *realloc(void *ptr, size_t size);
+
+/* zone.c */
+
+void *create_zone(uint32_t size);
+t_zone *getZone(t_zone *zone);
+void *littleZone(size_t size, bool zoneSize, size_t chunkSize, size_t nbPage);
+void *large(size_t size);
+
+#endif
