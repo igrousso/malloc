@@ -18,6 +18,7 @@
 
 #define TINY 0
 #define SMALL 1
+#define LARGE 2
 #define TINY_CHUNK 64
 #define SMALL_CHUNK 4096
 #define TINY_ZONE_SIZE (3 * PAGE_SIZE)

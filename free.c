@@ -2,5 +2,82 @@
 
 EXPORT void free(void *ptr)
 {
-    
+    t_zone *currZone;
+    int zone = findZone(&currZone, ptr);
+    if (zone == -1) // Invalid free
+        return;
+    if (freeChunk(currZone, ptr, zone) == -1) // Double free
+        return;
+    if (zone != LARGE && \
+        currZone->bitmap[0] == 0 && \
+        currZone->bitmap[1] == 0 && \
+        currZone != zones[zone])
+    {
+        t_zone *prevZone = getPrevZone(currZone, zone);
+        prevZone->next = currZone->next;
+        size_t size;
+        if (zone == TINY)
+            size = TINY_ZONE_SIZE;
+        else
+            size = SMALL_ZONE_SIZE;
+        munmap(currZone, size);
+    }
+}
+
+/* libère le chunk OU la zone entiere si le ptr vient d'une zone LARGE */
+int freeChunk(t_zone *currZone, void *ptr, int zone)
+{
+    if (zone == LARGE)
+    {
+        t_zone *prevZone = getPrevZone(currZone, zone);
+        prevZone->next = currZone->next;
+        munmap(currZone, currZone->bitmap[0]);
+        return 0;
+    }
+    size_t sizeChunk = TINY_CHUNK + (zone * (SMALL_CHUNK - TINY_CHUNK));
+    char index = (ptr - ((void *)currZone + sizeof(t_zone))) / sizeChunk;
+    if (checkBit(currZone->bitmap, index) == 0)
+        return -1;
+    clearBit(currZone->bitmap, index);
+    if (currZone->first_free_index == -1 || index < currZone->first_free_index)
+        currZone->first_free_index = index;
+    return 0;
+}
+
+/* trouve la bonne zone en fonction du pointeur */
+int findZone(t_zone **currZone, void *ptr)
+{
+    *currZone = zones[TINY];
+    while (*currZone)
+    {
+        void *begin = (void *)(*currZone) + sizeof(t_zone);
+        if (ptr >= begin && ptr < (void *)(*currZone) + TINY_ZONE_SIZE)
+            return TINY;
+        *currZone = (*currZone)->next;
+    }
+    *currZone = zones[SMALL];
+    while (*currZone)
+    {
+        void *begin = (void *)(*currZone) + sizeof(t_zone);
+        if (ptr >= begin && ptr < (void *)(*currZone) + SMALL_ZONE_SIZE)
+            return SMALL;
+        *currZone = (*currZone)->next;
+    }
+    *currZone = zones[LARGE];
+    while (*currZone)
+    {
+        if (ptr == (void *)(*currZone) + sizeof(t_zone))
+            return LARGE;
+        *currZone = (*currZone)->next;
+    }
+    return -1;
+}
+
+/* cherche le noeud prev dans la list t_zone */
+t_zone *getPrevZone(t_zone *currZone, int zone)
+{
+    t_zone *tmp = zones[zone];
+    while (tmp->next && tmp->next != currZone)
+        tmp = tmp->next;
+    return tmp;
 }

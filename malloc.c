@@ -10,7 +10,5 @@ EXPORT void *malloc(size_t size)
         ptr_ret = littleZone(size, SMALL, SMALL_CHUNK, 129);
     else
         ptr_ret = large(size);
-    if (ptr_ret == MAP_FAILED)
-        return NULL;
     return ptr_ret;
 }

@@ -1,6 +1,6 @@
 #include "malloc.h"
 
-t_zone *zones[2];
+t_zone *zones[3];
 
 /* créé une zone avec mmap */
 INLINE
@@ -10,7 +10,7 @@ inline void *create_zone(uint32_t size)
 }
 
 /* renvoie la premiere zone qui a de la place */
-t_zone *getZone(t_zone *zone)
+t_zone *getFreeZone(t_zone *zone)
 {
     while (zone->next)
     {
@@ -27,19 +27,30 @@ void *littleZone(size_t size, bool zoneSize, size_t chunkSize, size_t nbPage)
     t_zone *currZone;
 
     if (zones[zoneSize] == NULL)
-        currZone = zones[zoneSize] = create_zone(nbPage * PAGE_SIZE);
+    {
+        currZone = create_zone(nbPage * PAGE_SIZE);
+        if (currZone == MAP_FAILED)
+            return NULL;
+        zones[zoneSize] = currZone;
+    }
     else
-        currZone = getZone(zones[zoneSize]);
+        currZone = getFreeZone(zones[zoneSize]);
 
+    /* zone pleine, on rappelle mmap pour avoir une nouvelle zone */
     if (currZone->first_free_index == -1)
     {
         t_zone *newZone = create_zone(nbPage * PAGE_SIZE);
+        if (newZone == MAP_FAILED)
+            return NULL;
         currZone->next = newZone;
         currZone = newZone;
     }
 
+    /* on renvoit l'adresse du premier chunk libre */
     void *ret = (void *)currZone + sizeof(t_zone) + currZone->first_free_index * chunkSize;
+    /* on met le bit à 1 (chunk utilisé) */
     setBit(currZone->bitmap, currZone->first_free_index);
+    /* on choppe le prochain index */
     currZone->first_free_index = getNextIndex(currZone);
     return ret;
 }
@@ -48,6 +59,22 @@ void *littleZone(size_t size, bool zoneSize, size_t chunkSize, size_t nbPage)
 INLINE
 inline void *large(size_t size)
 {
-    void *ptr = create_zone(((size + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);  // arrondit au multiple de page supérieur
+    size_t currSize = ((size + sizeof(t_zone) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE; // arrondit au multiple de page supérieur
+    t_zone *currZone = create_zone(currSize);
+    if (currZone == MAP_FAILED)
+        return NULL;
+
+    /* stock la taille de l'allocation dans bitmap[0] puisqu'on n'utilise pas la bitmap pour les zones LARGE */
+    currZone->bitmap[0] = currSize;
+    if (zones[LARGE] == NULL)
+        zones[LARGE] = currZone;
+    else
+    {
+        t_zone *tmp = zones[LARGE];
+        while (tmp->next)
+            tmp = tmp->next;
+        tmp->next = currZone;
+    }
+    void *ptr = (void *)currZone + sizeof(t_zone);
     return ptr;
 }
