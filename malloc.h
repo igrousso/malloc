@@ -42,11 +42,17 @@ void clearBit(unsigned long *bitmap, size_t bitPos);
 bool checkBit(unsigned long *bitmap, size_t bitPos);
 char getNextIndex(t_zone *zone);
 
-/* alloc.c */
+/* malloc.c */
 
 void *malloc(size_t size);
 void free(void *ptr);
 void *realloc(void *ptr, size_t size);
+
+/* free.c */
+
+int freeChunk(t_zone *currZone, void *ptr, int zone);
+int findZone(t_zone **currZone, void *ptr);
+t_zone *getPrevZone(t_zone *currZone, int zone);
 
 /* zone.c */
 
