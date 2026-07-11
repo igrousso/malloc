@@ -1,6 +1,6 @@
 CC = gcc
 
-FLAGS = -fPIC -Wall -Wextra -Werror
+FLAGS = -fPIC -Wall -Wextra -Werror -O3 -fno-builtin -march=native
 
 LINKFLAGS = -shared -fvisibility=hidden 
 
