@@ -4,6 +4,8 @@ EXPORT void *malloc(size_t size)
 {
     void *ptr_ret;
 
+    if (size == 0)
+        return NULL;
     if (size <= TINY_CHUNK)
         ptr_ret = littleZone(TINY, TINY_CHUNK, 3);
     else if (size <= SMALL_CHUNK)

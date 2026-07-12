@@ -29,8 +29,13 @@ int freeChunk(t_zone *currZone, void *ptr, int zone)
 {
     if (zone == LARGE)
     {
-        t_zone *prevZone = getPrevZone(currZone, zone);
-        prevZone->next = currZone->next;
+        if (currZone == zones[LARGE])
+            zones[LARGE] = currZone->next;
+        else
+        {
+            t_zone *prevZone = getPrevZone(currZone, zone);
+            prevZone->next = currZone->next;
+        }
         munmap(currZone, currZone->bitmap[0]);
         return 0;
     }

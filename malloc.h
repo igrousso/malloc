@@ -6,11 +6,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// à supp
+#include <stdio.h>
+#include <string.h>
+
 /* pour que, dans le .so, il y ait uniquement les fonctions avec le tag EXPORT*/
 #define EXPORT __attribute__((visibility("default")))
 
 /* force le inline */
 #define INLINE __attribute__((always_inline))
+
+/* appelé a la fin d'un programme */
+#define DESTRUCTOR __attribute__((destructor))
 
 
 #define PAGE_SIZE sysconf(_SC_PAGESIZE)
@@ -56,8 +63,8 @@ t_zone *getPrevZone(t_zone *currZone, int zone);
 /* realloc.c */
 
 void *realloc(void *ptr, size_t size);
-void *move_tiny(t_zone *currZone, void *ptr, int zone);
-void *move_small(t_zone *currZone, void *ptr, int zone);
+void *move_tiny(size_t size, t_zone *currZone, void *ptr, int zone);
+void *move_small(size_t size, t_zone *currZone, void *ptr, int zone);
 void *move_large(size_t size, t_zone *currZone, void *ptr, int zone);
 
 /* zone.c */
@@ -69,6 +76,7 @@ void *large(size_t size);
 
 /* memcpyopt.c */
 
+void *ft_memcpy(void *restrict dst, const void *restrict src, size_t n);
 void *ft_memcpyopt(void *restrict dst, const void *restrict src, size_t n);
 
 #endif

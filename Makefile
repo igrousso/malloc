@@ -14,7 +14,8 @@ SRC = bitmap.c \
 	  free.c \
 	  malloc.c \
 	  realloc.c \
-	  zone.c
+	  zone.c \
+	  memcpyopt.c
 
 OBJ =  $(SRC:.c=.o)
 
