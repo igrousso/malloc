@@ -1,22 +1,19 @@
 #include "malloc.h"
 
 /* met un bit spécifique à 1 */
-INLINE
-inline void setBit(unsigned long *bitmap, size_t bitPos)
+INLINE void setBit(unsigned long *bitmap, size_t bitPos)
 {
     bitmap[bitPos / 64] |= (1UL << (bitPos % 64)); 
 }
 
 /* met un bit spécifique à 0 */
-INLINE
-inline void clearBit(unsigned long *bitmap, size_t bitPos)
+INLINE void clearBit(unsigned long *bitmap, size_t bitPos)
 {
     bitmap[bitPos / 64] &= ~(1UL << (bitPos % 64));
 }
 
 /* check si un bit est à 1 ou 0 (false si 0, true si 1) */
-INLINE
-inline bool checkBit(unsigned long *bitmap, size_t bitPos)
+INLINE bool checkBit(unsigned long *bitmap, size_t bitPos)
 {
     return bitmap[bitPos / 64] & (1UL << (bitPos % 64));
 }

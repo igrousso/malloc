@@ -3,14 +3,13 @@
 t_zone *zones[3];
 
 /* créé une zone avec mmap */
-INLINE
-inline void *create_zone(uint32_t size)
+INLINE void *create_zone(uint32_t size)
 {
     return mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
 /* renvoie la premiere zone qui a de la place */
-t_zone *getFreeZone(t_zone *zone)
+INLINE t_zone *getFreeZone(t_zone *zone)
 {
     while (zone->next)
     {
@@ -56,8 +55,7 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
 }
 
 /* renvoie une adresse allouée par mmap spécifiquement pour cet appel malloc */
-INLINE
-inline void *large(size_t size)
+INLINE void *large(size_t size)
 {
     size_t currSize = ((size + sizeof(t_zone) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE; // arrondit au multiple de page supérieur
     t_zone *currZone = create_zone(currSize);

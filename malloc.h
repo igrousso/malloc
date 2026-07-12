@@ -5,20 +5,13 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
-
-// à supp
-#include <stdio.h>
-#include <string.h>
+#include "ft_printf/ft_printf.h"
 
 /* pour que, dans le .so, il y ait uniquement les fonctions avec le tag EXPORT*/
 #define EXPORT __attribute__((visibility("default")))
 
 /* force le inline */
-#define INLINE __attribute__((always_inline))
-
-/* appelé a la fin d'un programme */
-#define DESTRUCTOR __attribute__((destructor))
-
+#define INLINE __attribute__((always_inline)) inline
 
 #define PAGE_SIZE sysconf(_SC_PAGESIZE)
 
@@ -77,6 +70,9 @@ void *large(size_t size);
 /* memcpyopt.c */
 
 void *ft_memcpy(void *restrict dst, const void *restrict src, size_t n);
-void *ft_memcpyopt(void *restrict dst, const void *restrict src, size_t n);
+
+/* show_alloc_mem.c */
+
+void show_alloc_mem();
 
 #endif
