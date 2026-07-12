@@ -22,7 +22,7 @@ t_zone *getFreeZone(t_zone *zone)
 }
 
 /* renvoie l'adresse d'un chunk vide pour une zone tiny ou small */
-void *littleZone(size_t size, bool zoneSize, size_t chunkSize, size_t nbPage)
+void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
 {
     t_zone *currZone;
 

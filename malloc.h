@@ -32,7 +32,7 @@ typedef struct s_zone
     char        first_free_index;
 }               t_zone;
 
-extern t_zone *zones[2];
+extern t_zone *zones[3];
 
 
 /* bitmap.c */
@@ -45,20 +45,30 @@ char getNextIndex(t_zone *zone);
 /* malloc.c */
 
 void *malloc(size_t size);
-void free(void *ptr);
-void *realloc(void *ptr, size_t size);
 
 /* free.c */
 
+void free(void *ptr);
 int freeChunk(t_zone *currZone, void *ptr, int zone);
 int findZone(t_zone **currZone, void *ptr);
 t_zone *getPrevZone(t_zone *currZone, int zone);
 
+/* realloc.c */
+
+void *realloc(void *ptr, size_t size);
+void *move_tiny(t_zone *currZone, void *ptr, int zone);
+void *move_small(t_zone *currZone, void *ptr, int zone);
+void *move_large(size_t size, t_zone *currZone, void *ptr, int zone);
+
 /* zone.c */
 
 void *create_zone(uint32_t size);
-t_zone *getZone(t_zone *zone);
-void *littleZone(size_t size, bool zoneSize, size_t chunkSize, size_t nbPage);
+t_zone *getFreeZone(t_zone *zone);
+void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage);
 void *large(size_t size);
+
+/* memcpyopt.c */
+
+void *ft_memcpyopt(void *restrict dst, const void *restrict src, size_t n);
 
 #endif
