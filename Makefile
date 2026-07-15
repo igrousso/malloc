@@ -45,11 +45,11 @@ clean:
 	$(MAKE) -C $(FT_PRINTF_DIR) clean
 
 fclean: clean
-	$(RM) $(NAME) $(LINKNAME)
+	$(RM) $(NAME) $(LINKNAME) a.out
 	$(MAKE) -C $(FT_PRINTF_DIR) fclean
 
 exec:
-	$(CC) $(MAIN) $(NAME) && LD_LIBRARY_PATH=. ./a.out
+	$(CC) $(MAIN) $(NAME)
 
 re: fclean all
 
