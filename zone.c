@@ -1,6 +1,7 @@
 #include "malloc.h"
 
 t_zone *zones[3];
+pthread_mutex_t mutexes[3] = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
 
 /* créé une zone avec mmap */
 INLINE void *create_zone(uint32_t size)
@@ -25,11 +26,14 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
 {
     t_zone *currZone;
 
+    pthread_mutex_lock(&mutexes[zoneSize]);
     if (zones[zoneSize] == NULL)
     {
         currZone = create_zone(nbPage * PAGE_SIZE);
-        if (currZone == MAP_FAILED)
+        if (currZone == MAP_FAILED) {
+            pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;
+        }
         zones[zoneSize] = currZone;
     }
     else
@@ -39,8 +43,10 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     if (currZone->first_free_index == -1)
     {
         t_zone *newZone = create_zone(nbPage * PAGE_SIZE);
-        if (newZone == MAP_FAILED)
+        if (newZone == MAP_FAILED) {
+            pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;
+        }
         currZone->next = newZone;
         currZone = newZone;
     }
@@ -51,6 +57,7 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     setBit(currZone->bitmap, currZone->first_free_index);
     /* on choppe le prochain index */
     currZone->first_free_index = getNextIndex(currZone);
+    pthread_mutex_unlock(&mutexes[zoneSize]);
     return ret;
 }
 
@@ -58,9 +65,13 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
 INLINE void *large(size_t size)
 {
     size_t currSize = ((size + sizeof(t_zone) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE; // arrondit au multiple de page supérieur
+
+    pthread_mutex_lock(&mutexes[LARGE]);
     t_zone *currZone = create_zone(currSize);
-    if (currZone == MAP_FAILED)
+    if (currZone == MAP_FAILED) {
+        pthread_mutex_unlock(&mutexes[LARGE]);
         return NULL;
+    }
 
     /* stock la taille de l'allocation dans bitmap[0] puisqu'on n'utilise pas la bitmap pour les zones LARGE */
     currZone->bitmap[0] = currSize;
@@ -74,5 +85,6 @@ INLINE void *large(size_t size)
         tmp->next = currZone;
     }
     void *ptr = (void *)currZone + sizeof(t_zone);
+    pthread_mutex_unlock(&mutexes[LARGE]);
     return ptr;
 }

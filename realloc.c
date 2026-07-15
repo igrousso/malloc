@@ -11,6 +11,7 @@ EXPORT void *realloc(void *ptr, size_t size)
     int zone = findZone(&currZone, ptr);
     if (zone == -1)
         return NULL;
+    pthread_mutex_unlock(&mutexes[zone]);
     void *ret;
     if (size <= 64)
     {
@@ -29,18 +30,20 @@ EXPORT void *realloc(void *ptr, size_t size)
     return ret;
 }
 
+/* déplace la data dans une zone tiny */
 void *move_tiny(size_t size, t_zone *currZone, void *ptr, int zone)
 {
     void *dst = littleZone(TINY, TINY_CHUNK, 3);
     if (dst == NULL)
         return NULL;
     size_t size_cpy;
-    if (zone == TINY)
-        size_cpy = TINY_CHUNK;
-    else if (zone == SMALL)
+    if (zone == SMALL)
         size_cpy = SMALL_CHUNK;
-    else
+    else {
+        pthread_mutex_lock(&mutexes[LARGE]); 
         size_cpy = currZone->bitmap[0] - sizeof(t_zone);
+        pthread_mutex_unlock(&mutexes[LARGE]); 
+    }
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);
@@ -48,6 +51,7 @@ void *move_tiny(size_t size, t_zone *currZone, void *ptr, int zone)
     return dst;
 }
 
+/* déplace la data dans une zone small */
 void *move_small(size_t size, t_zone *currZone, void *ptr, int zone)
 {
     void *dst = littleZone(SMALL, SMALL_CHUNK, 129);
@@ -56,10 +60,11 @@ void *move_small(size_t size, t_zone *currZone, void *ptr, int zone)
     size_t size_cpy;
     if (zone == TINY)
         size_cpy = TINY_CHUNK;
-    if (zone == SMALL)
-        size_cpy = SMALL_CHUNK;
-    else
+    else {
+        pthread_mutex_lock(&mutexes[LARGE]); 
         size_cpy = currZone->bitmap[0] - sizeof(t_zone);
+        pthread_mutex_unlock(&mutexes[LARGE]);
+    }
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);
@@ -67,6 +72,7 @@ void *move_small(size_t size, t_zone *currZone, void *ptr, int zone)
     return dst;
 }
 
+/* déplace la data dans une zone large */
 void *move_large(size_t size, t_zone *currZone, void *ptr, int zone)
 {
     void *dst = large(size);
@@ -77,8 +83,11 @@ void *move_large(size_t size, t_zone *currZone, void *ptr, int zone)
         size_cpy = TINY_CHUNK;
     if (zone == SMALL)
         size_cpy = SMALL_CHUNK;
-    else
+    else {
+        pthread_mutex_lock(&mutexes[LARGE]);
         size_cpy = currZone->bitmap[0] - sizeof(t_zone);
+        pthread_mutex_unlock(&mutexes[LARGE]); 
+    }
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);

@@ -2,6 +2,8 @@ CC = gcc
 AR = ar
 RM = rm -rf
 
+MAIN ?= main.c
+
 FLAGS = -fPIC -Wall -Wextra -Werror -O3 -fno-builtin -march=native
 
 LINKFLAGS = -shared -fvisibility=hidden
@@ -46,6 +48,9 @@ fclean: clean
 	$(RM) $(NAME) $(LINKNAME)
 	$(MAKE) -C $(FT_PRINTF_DIR) fclean
 
+exec:
+	$(CC) $(MAIN) $(NAME) && LD_LIBRARY_PATH=. ./a.out
+
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean exec re

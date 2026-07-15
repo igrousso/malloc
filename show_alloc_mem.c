@@ -53,8 +53,14 @@ void show_large(size_t *count)
 EXPORT void show_alloc_mem()
 {
     size_t count = 0;
+    pthread_mutex_lock(&mutexes[TINY]);
     show_tiny(&count);
+    pthread_mutex_unlock(&mutexes[TINY]);
+    pthread_mutex_lock(&mutexes[SMALL]);
     show_small(&count);
+    pthread_mutex_unlock(&mutexes[SMALL]);
+    pthread_mutex_lock(&mutexes[LARGE]);
     show_large(&count);
+    pthread_mutex_unlock(&mutexes[LARGE]);
     ft_printf("Total : %u bytes\n", count);
 }

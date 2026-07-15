@@ -6,8 +6,10 @@ EXPORT void free(void *ptr)
     int zone = findZone(&currZone, ptr);
     if (zone == -1) // Invalid free
         return;
-    if (freeChunk(currZone, ptr, zone) == -1) // Double free
+    if (freeChunk(currZone, ptr, zone) == -1) {// Double free
+        pthread_mutex_unlock(&mutexes[zone]); 
         return;
+    }
     if (zone != LARGE && \
         currZone->bitmap[0] == 0 && \
         currZone->bitmap[1] == 0 && \
@@ -22,6 +24,7 @@ EXPORT void free(void *ptr)
             size = SMALL_ZONE_SIZE;
         munmap(currZone, size);
     }
+    pthread_mutex_unlock(&mutexes[zone]);
 }
 
 /* libère le chunk OU la zone entiere si le ptr vient d'une zone LARGE */
@@ -52,6 +55,7 @@ int freeChunk(t_zone *currZone, void *ptr, int zone)
 /* trouve la bonne zone en fonction du pointeur */
 int findZone(t_zone **currZone, void *ptr)
 {
+    pthread_mutex_lock(&mutexes[TINY]);
     *currZone = zones[TINY];
     while (*currZone)
     {
@@ -60,6 +64,8 @@ int findZone(t_zone **currZone, void *ptr)
             return TINY;
         *currZone = (*currZone)->next;
     }
+    pthread_mutex_unlock(&mutexes[TINY]);
+    pthread_mutex_lock(&mutexes[SMALL]);
     *currZone = zones[SMALL];
     while (*currZone)
     {
@@ -68,6 +74,8 @@ int findZone(t_zone **currZone, void *ptr)
             return SMALL;
         *currZone = (*currZone)->next;
     }
+    pthread_mutex_unlock(&mutexes[SMALL]);
+    pthread_mutex_lock(&mutexes[LARGE]);
     *currZone = zones[LARGE];
     while (*currZone)
     {
@@ -75,6 +83,7 @@ int findZone(t_zone **currZone, void *ptr)
             return LARGE;
         *currZone = (*currZone)->next;
     }
+    pthread_mutex_unlock(&mutexes[LARGE]);
     return -1;
 }
 

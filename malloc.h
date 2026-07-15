@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <pthread.h>
 #include "ft_printf/ft_printf.h"
 
 /* pour que, dans le .so, il y ait uniquement les fonctions avec le tag EXPORT*/
@@ -33,7 +34,7 @@ typedef struct s_zone
 }               t_zone;
 
 extern t_zone *zones[3];
-
+extern pthread_mutex_t mutexes[3];
 
 /* bitmap.c */
 
