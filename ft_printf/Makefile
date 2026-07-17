@@ -25,13 +25,8 @@ SRC = ft_printf.c \
 	  ft_prints.c \
 	  ft_printd.c \
 	  ft_printu.c \
-	  ft_printx.c \
-	  ft_printX.c \
 	  ft_printp.c \
-	  ft_ul_itoa_base.c \
-	  ft_ui_itoa_base.c \
-	  tools.c \
-	  tools2.c
+	  tools.c
 
 OBJ = $(SRC:.c=.o)
 

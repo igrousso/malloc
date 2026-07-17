@@ -41,46 +41,18 @@ char	*ft_toupper_string(char *x)
 	return (x);
 }
 
-int	longlen(long nb)
+size_t ft_strlen(char *str)
 {
-	int	i;
+    int i = 0;
 
-	i = 0;
-	if (nb == 0)
-		return (1);
-	while (nb != 0)
-	{
-		nb = nb / 10;
-		i++;
-	}
-	return (i);
+    while (str[i++]);
+    return i;
 }
 
-char	*ft_longitoa(long nb)
+char ft_toupper(char c)
 {
-	long	n;
-	int		sign;
-	int		len;
-	char	*str;
-
-	n = nb;
-	sign = 0;
-	if (nb < 0)
-	{
-		sign = 1;
-		n = -n;
-	}
-	len = longlen(nb) + sign;
-	str = malloc(sizeof(char) * len + 1);
-	if (!str)
-		return (NULL);
-	str[len] = '\0';
-	if (sign == 1)
-		str[0] = '-';
-	while (len > sign)
-	{
-		str[--len] = n % 10 + '0';
-		n /= 10;
-	}
-	return (str);
+    if (c >= 'z' && c <= 'a')
+        return c - 32;
+    return c;
 }
+

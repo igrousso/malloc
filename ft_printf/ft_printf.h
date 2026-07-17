@@ -26,17 +26,8 @@ int		ft_print_s(va_list params);
 int		ft_print_p(va_list params);
 int		ft_print_d(va_list params);
 int		ft_print_u(va_list params);
-int		ft_print_xlow(va_list params);
-int		ft_print_xup(va_list params);
-char	*ft_ul_itoa_base(unsigned long n);
 int		ft_intstrchr(const char *s, int c);
 char	*ft_toupper_string(char *x);
-int		longlen(long nb);
-char	*ft_longitoa(long nb);
-char	*ft_ui_itoa_base(unsigned int n);
-char	*restint(unsigned int nb, char *str);
-void	zero(unsigned int nb, char *str);
-int		len_base(unsigned int n);
 size_t ft_strlen(char *str);
 char ft_toupper(char c);
 

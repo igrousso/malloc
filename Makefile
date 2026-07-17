@@ -20,7 +20,8 @@ SRC = bitmap.c \
 	  realloc.c \
 	  zone.c \
 	  memcpyopt.c \
-	  show_alloc_mem.c
+	  show_alloc_mem.c \
+	  show_alloc_mem_ex.c
 
 OBJ = $(SRC:.c=.o)
 

@@ -12,16 +12,48 @@
 
 #include "ft_printf.h"
 
+static void    ft_putnbr(int nb)
+{
+    if (nb < 0)
+    {
+        if (nb == -2147483648)
+        {
+            write(1, "-2147483648", 11);
+            return ;
+        }
+        write(1, "-", 1);
+        nb = -nb;
+    }
+    if (nb >= 10)
+    {
+        ft_putnbr(nb / 10);
+        ft_putnbr(nb % 10);
+    }
+    else
+	{
+		char c = nb + '0';
+		write(1, &c, 1);
+	}
+}
+
+static size_t intlen(int nb)
+{
+	if (nb == 0)
+		return 1;
+	int count = 0;
+	while (nb)
+	{
+		nb /= 10;
+		count++;
+	}
+	return count;
+}
+
 int	ft_print_d(va_list params)
 {
 	int		c;
-	char	*str;
-	size_t	len;
 
 	c = va_arg(params, int);
-	str = ft_longitoa(c);
-	len = ft_strlen(str);
-	write(1, str, len);
-	free(str);
-	return (len);
+	ft_putnbr(c);
+	return (intlen(c) + (c < 0 ? 1 : 0));
 }

@@ -29,10 +29,6 @@ int	check_possibilities(const char *s, va_list params, int i)
 		c += ft_print_d(params);
 	else if (s[i] == 'u')
 		c += ft_print_u(params);
-	else if (s[i] == 'x')
-		c += ft_print_xlow(params);
-	else if (s[i] == 'X')
-		c += ft_print_xup(params);
 	else if (s[i] == '%')
 	{
 		write(1, "%", 1);
@@ -57,7 +53,7 @@ int	ft_printf(const char *s, ...)
 		if (s[i] == '%')
 		{
 			i++;
-			if (ft_intstrchr("cspdiuxX%", s[i]) == 1)
+			if (ft_intstrchr("cspdiux%", s[i]) == 1)
 				c += check_possibilities(s, params, i);
 		}
 		i++;

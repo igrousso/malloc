@@ -76,4 +76,8 @@ void *ft_memcpy(void *restrict dst, const void *restrict src, size_t n);
 
 void show_alloc_mem();
 
+/* show_alloc_meme_ex.c */
+
+void show_alloc_mem_ex();
+
 #endif

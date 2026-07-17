@@ -12,16 +12,38 @@
 
 #include "ft_printf.h"
 
+static void    ft_putnbr(unsigned int nb)
+{
+    if (nb >= 10)
+    {
+        ft_putnbr(nb / 10);
+        ft_putnbr(nb % 10);
+    }
+    else
+	{
+		char c = nb + '0';
+		write(1, &c, 1);
+	}
+}
+
+static size_t intlen(unsigned int nb)
+{
+	if (nb == 0)
+		return 1;
+	int count = 0;
+	while (nb)
+	{
+		nb /= 10;
+		count++;
+	}
+	return count;
+}
+
 int	ft_print_u(va_list params)
 {
 	unsigned int	c;
-	size_t			len;
-	char			*str;
 
 	c = va_arg(params, unsigned int);
-	str = ft_longitoa(c);
-	len = ft_strlen(str);
-	write(1, str, len);
-	free(str);
-	return (len);
+	ft_putnbr(c);
+	return (intlen(c));
 }
