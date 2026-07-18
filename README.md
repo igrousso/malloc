@@ -35,12 +35,6 @@ Ou avec le Makefile :
 make exec MAIN=main.c
 ```
 
-### En remplacement du malloc système (LD_PRELOAD)
-
-```bash
-LD_PRELOAD=./libft_malloc_x86_64_Linux.so ls
-```
-
 ---
 
 ## Architecture
