@@ -12,11 +12,11 @@
 
 #include "ft_printf.h"
 
-int	ft_print_c(va_list params)
+int	ft_print_c(int fd, va_list params)
 {
 	unsigned int	c;
 
 	c = va_arg(params, int);
-	write(1, &c, 1);
+	write(fd, &c, 1);
 	return (1);
 }

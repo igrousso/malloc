@@ -20,12 +20,12 @@
 # include <string.h>
 # include <unistd.h>
 
-int		ft_printf(const char *s, ...);
-int		ft_print_c(va_list params);
-int		ft_print_s(va_list params);
-int		ft_print_p(va_list params);
-int		ft_print_d(va_list params);
-int		ft_print_u(va_list params);
+int		ft_printf(int fd, const char *s, ...);
+int		ft_print_c(int fd, va_list params);
+int		ft_print_s(int fd, va_list params);
+int		ft_print_p(int fd, va_list params);
+int		ft_print_d(int fd, va_list params);
+int		ft_print_u(int fd, va_list params);
 int		ft_intstrchr(const char *s, int c);
 char	*ft_toupper_string(char *x);
 size_t ft_strlen(char *str);

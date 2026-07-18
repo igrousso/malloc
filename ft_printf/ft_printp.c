@@ -12,13 +12,13 @@
 
 #include "ft_printf.h"
 
-int	ft_print_p(va_list params)
+int	ft_print_p(int fd, va_list params)
 {
 	void	*ptr;
 
 	ptr = va_arg(params, void *);
 	if (ptr == NULL)
-		return (write(1, "(nil)", 5));
+		return (write(fd, "(nil)", 5));
 
 	char buf[19];
 	unsigned long n = (unsigned long)ptr;
@@ -34,6 +34,6 @@ int	ft_print_p(va_list params)
 	}
 	buf[i--] = 'x';
 	buf[i] = '0';
-	write(1, buf + i, 18 - i);
+	write(fd, buf + i, 18 - i);
 	return (18 - i);
 }

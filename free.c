@@ -4,10 +4,25 @@ EXPORT void free(void *ptr)
 {
     t_zone *currZone;
     int zone = findZone(&currZone, ptr);
-    if (zone == -1) // Invalid free
+    if (zone == -1) {
+        if (getenv("MALLOC_CHECK_"))
+            write(2, "malloc error: Invalid free\n", 27);
         return;
-    if (freeChunk(currZone, ptr, zone) == -1) {// Double free
-        pthread_mutex_unlock(&mutexes[zone]); 
+    }
+    uintptr_t offset = ptr - ((void *)currZone + sizeof(t_zone));
+    int size = (zone == 0 ? TINY_CHUNK : (zone == 1 ? SMALL_CHUNK : 0));
+    if ((size && (offset % size != 0)) || \
+        (!size && offset))
+    {
+        if (getenv("MALLOC_CHECK_"))
+            write(2, "malloc error: Invalid pointer (misaligned)\n", 43);
+        pthread_mutex_unlock(&mutexes[zone]);
+        return;
+    }
+    if (freeChunk(currZone, ptr, zone) == -1) {
+        pthread_mutex_unlock(&mutexes[zone]);
+        if (getenv("MALLOC_CHECK_"))
+            write(2, "malloc error: Double free\n", 26);
         return;
     }
     if (zone != LARGE && \
@@ -25,6 +40,8 @@ EXPORT void free(void *ptr)
         munmap(currZone, size);
     }
     pthread_mutex_unlock(&mutexes[zone]);
+    if (getenv("MALLOC_VERBOSE_"))
+        ft_printf(2, "free(%p)\n", ptr);
 }
 
 /* libère le chunk OU la zone entiere si le ptr vient d'une zone LARGE */
@@ -49,6 +66,9 @@ int freeChunk(t_zone *currZone, void *ptr, int zone)
     clearBit(currZone->bitmap, index);
     if (currZone->first_free_index == -1 || index < currZone->first_free_index)
         currZone->first_free_index = index;
+    char *perturb = getenv("MALLOC_PERTURB_");
+    if (perturb)
+        ft_memset(ptr, ft_atoi(perturb) & 0xff, sizeChunk);
     return 0;
 }
 

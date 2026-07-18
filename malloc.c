@@ -12,5 +12,6 @@ EXPORT void *malloc(size_t size)
         ptr_ret = littleZone(SMALL, SMALL_CHUNK, 129);
     else
         ptr_ret = large(size);
+    ft_printf(2, "malloc(%u) = %p\n", size, ptr_ret);
     return ptr_ret;
 }

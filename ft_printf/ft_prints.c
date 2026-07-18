@@ -12,15 +12,15 @@
 
 #include "ft_printf.h"
 
-int	ft_print_s(va_list params)
+int	ft_print_s(int fd, va_list params)
 {
 	size_t	len;
 	char	*str;
 
 	str = va_arg(params, char *);
 	if (str == NULL)
-		return (write(1, "(null)", 6));
+		return (write(fd, "(null)", 6));
 	len = ft_strlen(str);
-	write(1, str, len);
+	write(fd, str, len);
 	return (len);
 }

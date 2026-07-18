@@ -19,7 +19,7 @@ SRC = bitmap.c \
 	  malloc.c \
 	  realloc.c \
 	  zone.c \
-	  memcpyopt.c \
+	  utils.c \
 	  show_alloc_mem.c \
 	  show_alloc_mem_ex.c
 

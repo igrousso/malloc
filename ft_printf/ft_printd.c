@@ -12,13 +12,13 @@
 
 #include "ft_printf.h"
 
-static void    ft_putnbr(int nb)
+static void    ft_putnbr(int fd, int nb)
 {
     if (nb < 0)
     {
         if (nb == -2147483648)
         {
-            write(1, "-2147483648", 11);
+            write(fd, "-2147483648", 11);
             return ;
         }
         write(1, "-", 1);
@@ -26,13 +26,13 @@ static void    ft_putnbr(int nb)
     }
     if (nb >= 10)
     {
-        ft_putnbr(nb / 10);
-        ft_putnbr(nb % 10);
+        ft_putnbr(fd, nb / 10);
+        ft_putnbr(fd, nb % 10);
     }
     else
 	{
 		char c = nb + '0';
-		write(1, &c, 1);
+		write(fd, &c, 1);
 	}
 }
 
@@ -49,11 +49,11 @@ static size_t intlen(int nb)
 	return count;
 }
 
-int	ft_print_d(va_list params)
+int	ft_print_d(int fd, va_list params)
 {
 	int		c;
 
 	c = va_arg(params, int);
-	ft_putnbr(c);
+	ft_putnbr(fd, c);
 	return (intlen(c) + (c < 0 ? 1 : 0));
 }

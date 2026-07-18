@@ -68,9 +68,11 @@ t_zone *getFreeZone(t_zone *zone);
 void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage);
 void *large(size_t size);
 
-/* memcpyopt.c */
+/* utils.c */
 
 void *ft_memcpy(void *restrict dst, const void *restrict src, size_t n);
+void *ft_memset(void *s, int c, size_t n);
+int ft_atoi(char *s);
 
 /* show_alloc_mem.c */
 

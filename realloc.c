@@ -12,21 +12,42 @@ EXPORT void *realloc(void *ptr, size_t size)
     if (zone == -1)
         return NULL;
     pthread_mutex_unlock(&mutexes[zone]);
+
+    uintptr_t offset = ptr - ((void *)currZone + sizeof(t_zone));
+    int sizeChunk = (zone == 0 ? TINY_CHUNK : (zone == 1 ? SMALL_CHUNK : 0));
+    if ((sizeChunk && (offset % sizeChunk != 0)) || \
+        (!sizeChunk && offset))
+    {
+        if (getenv("MALLOC_CHECK_"))
+            write(2, "malloc error: Invalid pointer (misaligned)\n", 43);
+        return NULL;
+    }
+
     void *ret;
+    int retptr = 0;
     if (size <= 64)
     {
         if (zone == TINY)
-            return ptr;
-        ret = move_tiny(size, currZone, ptr, zone);
+            retptr = 1;
+        else
+            ret = move_tiny(size, currZone, ptr, zone);
     }
     else if (size <= 4096)
     {
         if (zone == SMALL)
-            return ptr;
-        ret = move_small(size, currZone, ptr, zone);
+            retptr = 1;
+        else
+            ret = move_small(size, currZone, ptr, zone);
     }
     else
         ret = move_large(size, currZone, ptr, zone);
+    if (retptr == 1)
+    {
+        ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ptr);
+        return ptr;
+    }
+    ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ret);
+    free(ptr);
     return ret;
 }
 
@@ -47,7 +68,6 @@ void *move_tiny(size_t size, t_zone *currZone, void *ptr, int zone)
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);
-    free(ptr);
     return dst;
 }
 
@@ -68,7 +88,6 @@ void *move_small(size_t size, t_zone *currZone, void *ptr, int zone)
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);
-    free(ptr);
     return dst;
 }
 
@@ -91,6 +110,5 @@ void *move_large(size_t size, t_zone *currZone, void *ptr, int zone)
     if (size < size_cpy)
         size_cpy = size;
     ft_memcpy(dst, ptr, size_cpy);
-    free(ptr);
     return dst;
 }

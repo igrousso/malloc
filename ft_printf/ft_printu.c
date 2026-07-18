@@ -12,17 +12,17 @@
 
 #include "ft_printf.h"
 
-static void    ft_putnbr(unsigned int nb)
+static void    ft_putnbr(int fd, unsigned int nb)
 {
     if (nb >= 10)
     {
-        ft_putnbr(nb / 10);
-        ft_putnbr(nb % 10);
+        ft_putnbr(fd, nb / 10);
+        ft_putnbr(fd, nb % 10);
     }
     else
 	{
 		char c = nb + '0';
-		write(1, &c, 1);
+		write(fd, &c, 1);
 	}
 }
 
@@ -39,11 +39,11 @@ static size_t intlen(unsigned int nb)
 	return count;
 }
 
-int	ft_print_u(va_list params)
+int	ft_print_u(int fd, va_list params)
 {
 	unsigned int	c;
 
 	c = va_arg(params, unsigned int);
-	ft_putnbr(c);
+	ft_putnbr(fd, c);
 	return (intlen(c));
 }

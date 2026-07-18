@@ -3,9 +3,46 @@
 t_zone *zones[3];
 pthread_mutex_t mutexes[3] = {PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER};
 
+uint32_t getNbPage()
+{
+    uint32_t ret = 0;
+    
+    t_zone *curr = zones[TINY];
+    while (curr)
+    {
+        ret += 3;
+        curr = curr->next;
+    }
+    curr = zones[SMALL];
+    while (curr)
+    {
+        ret += 129;
+        curr = curr->next;
+    }
+    curr = zones[LARGE];
+    while (curr)
+    {
+        ret += curr->bitmap[0] / PAGE_SIZE;
+        curr = curr->next;
+    }
+    return ret;
+}
+
 /* créé une zone avec mmap */
 INLINE void *create_zone(uint32_t size)
 {
+    char *page_max = getenv("MALLOC_PAGE_MAX_");
+    if (page_max)
+    {
+        int nb_page = getNbPage();
+        
+        if (nb_page >= ft_atoi(page_max))
+        {
+            write(2, "malloc error: Maximum number of pages reached\n", 46);
+            return NULL;
+        }
+    }
+
     return mmap(0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 }
 
@@ -30,7 +67,7 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     if (zones[zoneSize] == NULL)
     {
         currZone = create_zone(nbPage * PAGE_SIZE);
-        if (currZone == MAP_FAILED) {
+        if (currZone == MAP_FAILED || currZone == NULL) {
             pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;
         }
@@ -43,7 +80,7 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     if (currZone->first_free_index == -1)
     {
         t_zone *newZone = create_zone(nbPage * PAGE_SIZE);
-        if (newZone == MAP_FAILED) {
+        if (newZone == MAP_FAILED || newZone == NULL) {
             pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;
         }
@@ -57,6 +94,9 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     setBit(currZone->bitmap, currZone->first_free_index);
     /* on choppe le prochain index */
     currZone->first_free_index = getNextIndex(currZone);
+    char *perturb = getenv("MALLOC_PERTURB_");
+    if (perturb)
+        ft_memset(ret, ~(ft_atoi(perturb    ) & 0xff), chunkSize); // & 0xff sert à garder uniquement le byte de poids faible pour rester entr 0 et 255
     pthread_mutex_unlock(&mutexes[zoneSize]);
     return ret;
 }
@@ -68,7 +108,7 @@ INLINE void *large(size_t size)
 
     pthread_mutex_lock(&mutexes[LARGE]);
     t_zone *currZone = create_zone(currSize);
-    if (currZone == MAP_FAILED) {
+    if (currZone == MAP_FAILED || currZone == NULL) {
         pthread_mutex_unlock(&mutexes[LARGE]);
         return NULL;
     }
@@ -85,6 +125,9 @@ INLINE void *large(size_t size)
         tmp->next = currZone;
     }
     void *ptr = (void *)currZone + sizeof(t_zone);
+    char *perturb = getenv("MALLOC_PERTURB_");
+    if (perturb)
+        ft_memset(ptr, ft_atoi(perturb) & 0xff, currSize);
     pthread_mutex_unlock(&mutexes[LARGE]);
     return ptr;
 }
