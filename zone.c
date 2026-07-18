@@ -59,14 +59,14 @@ INLINE t_zone *getFreeZone(t_zone *zone)
 }
 
 /* renvoie l'adresse d'un chunk vide pour une zone tiny ou small */
-void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
+void *littleZone(bool zoneSize, size_t chunkSize, size_t size)
 {
     t_zone *currZone;
 
     pthread_mutex_lock(&mutexes[zoneSize]);
     if (zones[zoneSize] == NULL)
     {
-        currZone = create_zone(nbPage * PAGE_SIZE);
+        currZone = create_zone(size);
         if (currZone == MAP_FAILED || currZone == NULL) {
             pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;
@@ -79,7 +79,7 @@ void *littleZone(bool zoneSize, size_t chunkSize, size_t nbPage)
     /* zone pleine, on rappelle mmap pour avoir une nouvelle zone */
     if (currZone->first_free_index == -1)
     {
-        t_zone *newZone = create_zone(nbPage * PAGE_SIZE);
+        t_zone *newZone = create_zone(size);
         if (newZone == MAP_FAILED || newZone == NULL) {
             pthread_mutex_unlock(&mutexes[zoneSize]);
             return NULL;

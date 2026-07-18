@@ -7,9 +7,9 @@ EXPORT void *malloc(size_t size)
     if (size == 0)
         return NULL;
     if (size <= TINY_CHUNK)
-        ptr_ret = littleZone(TINY, TINY_CHUNK, 3);
+        ptr_ret = littleZone(TINY, TINY_CHUNK, TINY_ZONE_SIZE);
     else if (size <= SMALL_CHUNK)
-        ptr_ret = littleZone(SMALL, SMALL_CHUNK, 129);
+        ptr_ret = littleZone(SMALL, SMALL_CHUNK, SMALL_ZONE_SIZE);
     else
         ptr_ret = large(size);
     if (getenv("MALLOC_VERBOSE_")) {

@@ -22,9 +22,9 @@
 #define LARGE 2
 #define PRINT 3
 #define TINY_CHUNK 64
-#define SMALL_CHUNK 4096
+#define SMALL_CHUNK 1024
 #define TINY_ZONE_SIZE (3 * PAGE_SIZE)
-#define SMALL_ZONE_SIZE (129 * PAGE_SIZE)
+#define SMALL_ZONE_SIZE (33 * PAGE_SIZE)
 
 /* structure representant le header de chaque zone de memoire */
 typedef struct s_zone

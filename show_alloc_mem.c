@@ -63,6 +63,6 @@ EXPORT void show_alloc_mem()
     pthread_mutex_unlock(&mutexes[SMALL]);
     pthread_mutex_lock(&mutexes[LARGE]);
     show_large(&count);
-    pthread_mutex_lock(&mutexes[LARGE]);
+    pthread_mutex_unlock(&mutexes[LARGE]);
     ft_printf(1, "Total : %u bytes\n", count);
 }
