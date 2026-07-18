@@ -40,8 +40,11 @@ EXPORT void free(void *ptr)
         munmap(currZone, size);
     }
     pthread_mutex_unlock(&mutexes[zone]);
-    if (getenv("MALLOC_VERBOSE_"))
+    if (getenv("MALLOC_VERBOSE_")) {
+        pthread_mutex_lock(&mutexes[PRINT]);
         ft_printf(2, "free(%p)\n", ptr);
+        pthread_mutex_unlock(&mutexes[PRINT]);
+    }
 }
 
 /* libère le chunk OU la zone entiere si le ptr vient d'une zone LARGE */

@@ -43,10 +43,18 @@ EXPORT void *realloc(void *ptr, size_t size)
         ret = move_large(size, currZone, ptr, zone);
     if (retptr == 1)
     {
-        ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ptr);
+        if (getenv("MALLOC_VERBOSE_")) {
+            pthread_mutex_lock(&mutexes[PRINT]);
+            ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ptr);
+            pthread_mutex_unlock(&mutexes[PRINT]);
+        }
         return ptr;
     }
-    ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ret);
+    if (getenv("MALLOC_VERBOSE_")) {
+        pthread_mutex_lock(&mutexes[PRINT]);
+        ft_printf(2, "realloc(%p, %u) = %p\n", ptr, size, ret);
+        pthread_mutex_unlock(&mutexes[PRINT]);
+    }
     free(ptr);
     return ret;
 }

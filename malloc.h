@@ -20,6 +20,7 @@
 #define TINY 0
 #define SMALL 1
 #define LARGE 2
+#define PRINT 3
 #define TINY_CHUNK 64
 #define SMALL_CHUNK 4096
 #define TINY_ZONE_SIZE (3 * PAGE_SIZE)
@@ -34,7 +35,7 @@ typedef struct s_zone
 }               t_zone;
 
 extern t_zone *zones[3];
-extern pthread_mutex_t mutexes[3];
+extern pthread_mutex_t mutexes[4];
 
 /* bitmap.c */
 

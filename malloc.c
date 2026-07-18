@@ -12,6 +12,10 @@ EXPORT void *malloc(size_t size)
         ptr_ret = littleZone(SMALL, SMALL_CHUNK, 129);
     else
         ptr_ret = large(size);
-    ft_printf(2, "malloc(%u) = %p\n", size, ptr_ret);
+    if (getenv("MALLOC_VERBOSE_")) {
+        pthread_mutex_lock(&mutexes[PRINT]);
+        ft_printf(2, "malloc(%u) = %p\n", size, ptr_ret);
+        pthread_mutex_unlock(&mutexes[PRINT]);
+    }
     return ptr_ret;
 }
